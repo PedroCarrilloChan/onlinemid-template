@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 // Importamos el componente de React para tsParticles y el motor slim
+// Asegúrate de haber instalado estas dependencias en tu proyecto
+// ejecutando: npm install react-tsparticles tsparticles-slim
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
-
 
 // --- Componente de Fondo Inmersivo ---
 function ParticleBackground() {
@@ -11,18 +12,17 @@ function ParticleBackground() {
     await loadSlim(engine);
   }, []);
 
-  // Opciones de partículas para un fondo sutil
   const particlesOptions = {
       fpsLimit: 60,
       particles: {
         number: {
-          value: 100, // Menos partículas para un look más limpio y profesional
+          value: 100,
           density: { enable: true, value_area: 800 },
         },
         color: { value: "#ffffff" },
         shape: { type: "circle" },
         opacity: {
-          value: 0.2, // Más sutiles
+          value: 0.2,
           random: true,
           anim: { enable: true, speed: 0.4, opacity_min: 0.05, sync: false },
         },
@@ -41,7 +41,6 @@ function ParticleBackground() {
   return <Particles id="tsparticles" init={particlesInit} options={particlesOptions} className="fixed top-0 left-0 w-full h-full -z-10" />;
 }
 
-
 // --- Componente para el Formulario de Login ---
 function LoginForm({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -55,16 +54,22 @@ function LoginForm({ onLoginSuccess }) {
     setLoading(true);
 
     try {
+      // Esta es la llamada a tu API real en Cloudflare Functions
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(data.error || 'Hubo un problema al iniciar sesión.');
       }
+
+      // Si la respuesta es exitosa, llamamos a la función onLoginSuccess
       onLoginSuccess();
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,30 +86,21 @@ function LoginForm({ onLoginSuccess }) {
           <div>
             <label htmlFor="email" className="text-sm font-medium text-gray-300">Correo Electrónico</label>
             <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 mt-1 text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]"
             />
           </div>
           <div>
             <label htmlFor="password" className="text-sm font-medium text-gray-300">Contraseña</label>
             <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 mt-1 text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]"
             />
           </div>
           {error && <p className="text-sm text-center text-red-400">{error}</p>}
           <div>
             <button
-              type="submit"
-              disabled={loading}
+              type="submit" disabled={loading}
               className="w-full px-4 py-3 font-bold text-white bg-[#0348eb] rounded-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 disabled:bg-gray-600"
             >
               {loading ? 'Ingresando...' : 'Entrar'}
@@ -116,15 +112,14 @@ function LoginForm({ onLoginSuccess }) {
   );
 }
 
-
 // --- Componente Base del Layout del Dashboard ---
-function DashboardLayout({ children }) {
+function DashboardLayout({ onLogout, children }) {
   return (
     <div className="min-h-screen text-white">
       <header className="sticky top-0 z-10 bg-black/30 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold font-nunito">OnlineMid Portal</h1>
-          <button className="font-roboto text-gray-300 hover:text-white transition-colors">Cerrar Sesión</button>
+          <button onClick={onLogout} className="font-roboto text-gray-300 hover:text-white transition-colors">Cerrar Sesión</button>
         </div>
       </header>
       <main className="container mx-auto p-6">
@@ -134,18 +129,20 @@ function DashboardLayout({ children }) {
   )
 }
 
+// --- Componente Principal del Editor del Dashboard ---
+function DashboardEditor({ onLogout }) {
+    // Aquí construiremos los formularios para editar contenido
+    return (
+        <DashboardLayout onLogout={onLogout}>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold font-nunito">Editor de Contenido</h2>
+            </div>
 
-// --- Componente para el Panel de Control (después del login) ---
-function Dashboard() {
-  return (
-    <DashboardLayout>
-      <h2 className="text-3xl font-bold mb-6 font-nunito">¡Bienvenido a tu Portal!</h2>
-      <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
-        <p className="text-gray-300 font-roboto">Aquí podrás editar el contenido de tu página web.</p>
-        {/* Aquí construiremos los formularios para editar los textos, imágenes, etc. */}
-      </div>
-    </DashboardLayout>
-  );
+            <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+              <p className="text-gray-300 font-roboto">¡Bienvenido! Próximamente aquí podrás editar el contenido de tu página web.</p>
+            </div>
+        </DashboardLayout>
+    );
 }
 
 
@@ -157,16 +154,18 @@ export default function App() {
     setIsLoggedIn(true);
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  }
+
   return (
     <div className="relative">
-       {/* Global styles for fonts and background */}
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Roboto:wght@400;500&display=swap');
 
         body {
             font-family: 'Roboto', sans-serif;
-            /* New gradient background based on brand colors */
-            background-color: #222222; /* Dark base */
+            background-color: #222222;
             background-image: 
                 radial-gradient(circle at 100% 100%, rgba(3, 72, 235, 0.1), transparent 50%),
                 radial-gradient(circle at 0% 100%, rgba(3, 72, 235, 0.05), transparent 60%);
@@ -182,7 +181,7 @@ export default function App() {
       `}</style>
       <ParticleBackground />
       <div className="relative z-10">
-        {isLoggedIn ? <Dashboard /> : <LoginForm onLoginSuccess={handleLoginSuccess} />}
+        {isLoggedIn ? <DashboardEditor onLogout={handleLogout} /> : <LoginForm onLoginSuccess={handleLoginSuccess} />}
       </div>
     </div>
   );
