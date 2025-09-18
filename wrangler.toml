@@ -1,0 +1,21 @@
+# Cloudflare Pages configuration
+name = "onlinemid-portal"
+compatibility_date = "2024-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Pages configuration
+[build]
+command = "npm run build"
+cwd = "."
+
+# Environment variables
+[env.production.vars]
+NODE_ENV = "production"
+
+[env.preview.vars]  
+NODE_ENV = "preview"
+
+# Functions configuration
+[[env.production.services]]
+
+[[env.preview.services]]
