@@ -33,14 +33,19 @@ function LoginForm({ onLoginSuccess }) {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error de inicio de sesión.');
-      onLoginSuccess();
+      // Usamos las credenciales de prueba para simular el login por ahora
+      if (email === 'test@onlinemid.com' && password === 'password') {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Error de inicio de sesión.');
+        onLoginSuccess();
+      } else {
+        throw new Error('Credenciales inválidas.');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -167,6 +172,7 @@ function DashboardEditor({ onLogout }) {
             {error && <div className="bg-red-500/20 text-red-400 p-3 rounded-md mb-6 text-center">{error}</div>}
 
             <div className="space-y-8">
+                {/* Sección Hero */}
                 <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
                     <h3 className="text-xl font-bold font-nunito mb-4 border-b border-white/10 pb-2">Sección Principal (Hero)</h3>
                     <div className="space-y-4">
@@ -177,6 +183,49 @@ function DashboardEditor({ onLogout }) {
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-1">Subtítulo</label>
                             <textarea name="hero_subtitle" value={content.hero_subtitle || ''} onChange={handleInputChange} rows="3" className="w-full px-4 py-2 text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Nueva Sección de Servicios */}
+                <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+                    <h3 className="text-xl font-bold font-nunito mb-4 border-b border-white/10 pb-2">Sección de Servicios</h3>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {/* Servicio 1 */}
+                        <div className="space-y-2">
+                            <h4 className="text-lg font-semibold font-nunito text-gray-200">Servicio 1</h4>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-400 mb-1">Título del Servicio</label>
+                                <input type="text" name="service1_title" value={content.service1_title || ''} onChange={handleInputChange} className="w-full px-3 py-2 text-sm text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-400 mb-1">Descripción</label>
+                                <textarea name="service1_desc" value={content.service1_desc || ''} onChange={handleInputChange} rows="3" className="w-full px-3 py-2 text-sm text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                            </div>
+                        </div>
+                         {/* Servicio 2 */}
+                        <div className="space-y-2">
+                            <h4 className="text-lg font-semibold font-nunito text-gray-200">Servicio 2</h4>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-400 mb-1">Título del Servicio</label>
+                                <input type="text" name="service2_title" value={content.service2_title || ''} onChange={handleInputChange} className="w-full px-3 py-2 text-sm text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-400 mb-1">Descripción</label>
+                                <textarea name="service2_desc" value={content.service2_desc || ''} onChange={handleInputChange} rows="3" className="w-full px-3 py-2 text-sm text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                            </div>
+                        </div>
+                         {/* Servicio 3 */}
+                        <div className="space-y-2">
+                            <h4 className="text-lg font-semibold font-nunito text-gray-200">Servicio 3</h4>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-400 mb-1">Título del Servicio</label>
+                                <input type="text" name="service3_title" value={content.service3_title || ''} onChange={handleInputChange} className="w-full px-3 py-2 text-sm text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-400 mb-1">Descripción</label>
+                                <textarea name="service3_desc" value={content.service3_desc || ''} onChange={handleInputChange} rows="3" className="w-full px-3 py-2 text-sm text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                            </div>
                         </div>
                     </div>
                 </div>
