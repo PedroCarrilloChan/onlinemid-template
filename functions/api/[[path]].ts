@@ -90,13 +90,7 @@ const routes: Route[] = [
         
         const storage = getStorage(context.env);
         
-        // Check if username already exists
-        const existingUser = await storage.getUserByUsername(validatedData.username);
-        if (existingUser) {
-          return errorResponse('Username already exists', 409);
-        }
-        
-        // Create new user
+        // Create new user (storage handles uniqueness checking)
         const newUser = await storage.createUser(validatedData);
         
         return jsonResponse(newUser, 201);
@@ -104,6 +98,10 @@ const routes: Route[] = [
       } catch (error) {
         if (error instanceof ZodError) {
           return errorResponse('Invalid request data', 400);
+        }
+        
+        if (error instanceof Error && error.message === 'Username already exists') {
+          return errorResponse('Username already exists', 409);
         }
         
         throw error; // Re-throw for general error handling

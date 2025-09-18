@@ -15,7 +15,30 @@ NODE_ENV = "production"
 [env.preview.vars]  
 NODE_ENV = "preview"
 
-# Functions configuration
-[[env.production.services]]
+# D1 Database bindings
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "onlinemid-portal-db"
+database_id = "your-d1-database-id"
 
-[[env.preview.services]]
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "onlinemid-portal-preview-db"
+database_id = "your-preview-d1-database-id"
+
+# KV namespace bindings (alternative to D1)
+[[env.production.kv_namespaces]]
+binding = "USERS_KV"
+id = "your-users-kv-id"
+
+[[env.production.kv_namespaces]]
+binding = "USERNAME_INDEX_KV"
+id = "your-username-index-kv-id"
+
+[[env.preview.kv_namespaces]]
+binding = "USERS_KV"
+id = "your-preview-users-kv-id"
+
+[[env.preview.kv_namespaces]]
+binding = "USERNAME_INDEX_KV"
+id = "your-preview-username-index-kv-id"
