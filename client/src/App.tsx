@@ -1,43 +1,23 @@
-import React, { useState, useCallback } from 'react';
-
-// Importamos el componente de React para tsParticles y el motor slim
-// Asegúrate de haber instalado estas dependencias en tu proyecto
-// ejecutando: npm install react-tsparticles tsparticles-slim
+import React, { useState, useCallback, useEffect } from 'react';
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
 // --- Componente de Fondo Inmersivo ---
 function ParticleBackground() {
-  const particlesInit = useCallback(async (engine) => {
-    await loadSlim(engine);
-  }, []);
-
+  const particlesInit = useCallback(async (engine) => { await loadSlim(engine); }, []);
   const particlesOptions = {
       fpsLimit: 60,
       particles: {
-        number: {
-          value: 100,
-          density: { enable: true, value_area: 800 },
-        },
+        number: { value: 100, density: { enable: true, value_area: 800 } },
         color: { value: "#ffffff" },
         shape: { type: "circle" },
-        opacity: {
-          value: 0.2,
-          random: true,
-          anim: { enable: true, speed: 0.4, opacity_min: 0.05, sync: false },
-        },
-        size: {
-          value: { min: 0.5, max: 1.2 },
-          random: true,
-        },
-        move: {
-          enable: false,
-        },
+        opacity: { value: 0.2, random: true, anim: { enable: true, speed: 0.4, opacity_min: 0.05, sync: false } },
+        size: { value: { min: 0.5, max: 1.2 }, random: true },
+        move: { enable: false },
       },
       interactivity: { events: { onhover: { enable: false } } },
       detectRetina: true,
   };
-
   return <Particles id="tsparticles" init={particlesInit} options={particlesOptions} className="fixed top-0 left-0 w-full h-full -z-10" />;
 }
 
@@ -52,24 +32,15 @@ function LoginForm({ onLoginSuccess }) {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
-      // Esta es la llamada a tu API real en Cloudflare Functions
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Hubo un problema al iniciar sesión.');
-      }
-
-      // Si la respuesta es exitosa, llamamos a la función onLoginSuccess
+      if (!response.ok) throw new Error(data.error || 'Error de inicio de sesión.');
       onLoginSuccess();
-
     } catch (err) {
       setError(err.message);
     } finally {
@@ -129,55 +100,104 @@ function DashboardLayout({ onLogout, children }) {
   )
 }
 
-// --- Componente Principal del Editor del Dashboard ---
+// --- Componente Principal del Editor del Dashboard (AHORA CONECTADO A LA API) ---
 function DashboardEditor({ onLogout }) {
-    // Aquí construiremos los formularios para editar contenido
+    const [content, setContent] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+
+    // Efecto para cargar los datos del sitio al iniciar
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const response = await fetch('/api/content');
+                if (!response.ok) throw new Error('No se pudo cargar el contenido.');
+                const data = await response.json();
+                setContent(data);
+            } catch (err) {
+                setError('Error al cargar datos. Intente recargar la página.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchContent();
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setContent(prevContent => ({ ...prevContent, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        setMessage('');
+        setError('');
+        try {
+            const response = await fetch('/api/content', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(content)
+            });
+            if (!response.ok) throw new Error('No se pudieron guardar los cambios.');
+            setMessage('¡Contenido guardado con éxito!');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (err) {
+            setError('Error al guardar. Intente de nuevo.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return <DashboardLayout onLogout={onLogout}><div className="text-center p-12">Cargando editor...</div></DashboardLayout>;
+    }
+
     return (
         <DashboardLayout onLogout={onLogout}>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold font-nunito">Editor de Contenido</h2>
+                <button onClick={handleSave} disabled={saving} className="px-6 py-2 font-bold text-white bg-[#0348eb] rounded-md hover:bg-blue-600 transition-colors disabled:bg-gray-500">
+                    {saving ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
             </div>
 
-            <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
-              <p className="text-gray-300 font-roboto">¡Bienvenido! Próximamente aquí podrás editar el contenido de tu página web.</p>
+            {message && <div className="bg-green-500/20 text-green-300 p-3 rounded-md mb-6 text-center">{message}</div>}
+            {error && <div className="bg-red-500/20 text-red-400 p-3 rounded-md mb-6 text-center">{error}</div>}
+
+            <div className="space-y-8">
+                <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+                    <h3 className="text-xl font-bold font-nunito mb-4 border-b border-white/10 pb-2">Sección Principal (Hero)</h3>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">Título Principal</label>
+                            <input type="text" name="hero_title" value={content.hero_title || ''} onChange={handleInputChange} className="w-full px-4 py-2 text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">Subtítulo</label>
+                            <textarea name="hero_subtitle" value={content.hero_subtitle || ''} onChange={handleInputChange} rows="3" className="w-full px-4 py-2 text-white bg-white/10 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-[#0348eb]" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </DashboardLayout>
     );
 }
 
-
 // --- Componente Principal de la Aplicación ---
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  }
+  const handleLoginSuccess = () => { setIsLoggedIn(true); };
+  const handleLogout = () => { setIsLoggedIn(false); };
 
   return (
     <div className="relative">
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Roboto:wght@400;500&display=swap');
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #222222;
-            background-image: 
-                radial-gradient(circle at 100% 100%, rgba(3, 72, 235, 0.1), transparent 50%),
-                radial-gradient(circle at 0% 100%, rgba(3, 72, 235, 0.05), transparent 60%);
-            background-attachment: fixed;
-        }
-
-        .font-nunito {
-            font-family: 'Nunito', sans-serif;
-        }
-        .font-roboto {
-            font-family: 'Roboto', sans-serif;
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: #222222; background-image: radial-gradient(circle at 100% 100%, rgba(3, 72, 235, 0.1), transparent 50%), radial-gradient(circle at 0% 100%, rgba(3, 72, 235, 0.05), transparent 60%); background-attachment: fixed; }
+        .font-nunito { font-family: 'Nunito', sans-serif; }
+        .font-roboto { font-family: 'Roboto', sans-serif; }
       `}</style>
       <ParticleBackground />
       <div className="relative z-10">
