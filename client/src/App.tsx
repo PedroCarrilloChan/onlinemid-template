@@ -50,9 +50,10 @@ export default function App() {
     const fetchContentForDomain = async () => {
       try {
         // 1. Detectamos el dominio actual del visitante
-        // Para pruebas locales, podríamos hardcodear un dominio de prueba.
-        // const domain = 'test.com'; // Ojo: Reemplazar en producción
-        const domain = window.location.hostname;
+        // PARA PRUEBAS: Forzamos el dominio a ser 'test.com' para que coincida con nuestra base de datos.
+        const domain = 'test.com'; 
+        // EN PRODUCCIÓN: Usaríamos la siguiente línea en su lugar.
+        // const domain = window.location.hostname;
 
         // 2. Llamamos a nuestra API pública para pedir el contenido
         // AVISO: Reemplaza 'portal.onlinemid.com' con el dominio real de tu portal
@@ -97,3 +98,4 @@ export default function App() {
     </div>
   );
 }
+
