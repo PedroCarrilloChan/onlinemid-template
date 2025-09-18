@@ -1,52 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-// tsParticles es una librería ligera para crear fondos animados.
-// Necesitarás instalarla en tu proyecto: npm install react-tsparticles tsparticles
-import { tsParticles } from "tsparticles-engine";
+// Importamos el componente de React para tsParticles y el motor slim
+// Asegúrate de haber instalado estas dependencias en tu proyecto
+// ejecutando: npm install react-tsparticles tsparticles-slim
+import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
 
 // --- Componente de Fondo Inmersivo ---
 // Este componente crea el fondo de partículas estrelladas que se usará en toda la aplicación.
 function ParticleBackground() {
-  useEffect(() => {
-    // useEffect se asegura de que el código de partículas se ejecute solo una vez cuando el componente se monta.
-    loadSlim(tsParticles).then((engine) => {
-      engine.load({
-        id: "tsparticles",
-        options: {
-          background: {
-            color: { value: "#0d1a2c" }, // El mismo azul oscuro de tu marca
-          },
-          fpsLimit: 60,
-          particles: {
-            number: {
-              value: 150, // Menos partículas para un look más limpio
-              density: { enable: true, value_area: 800 },
-            },
-            color: { value: "#ffffff" },
-            shape: { type: "circle" },
-            opacity: {
-              value: 0.3,
-              random: true,
-              anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false },
-            },
-            size: {
-              value: { min: 0.5, max: 1.5 },
-              random: true,
-            },
-            move: {
-              enable: false, // Las partículas no se mueven, solo parpadean
-            },
-          },
-          interactivity: { events: { onhover: { enable: false } } },
-          detectRetina: true,
-        },
-      });
-    });
+  // useCallback se usa para memorizar la función y evitar que se recree innecesariamente
+  const particlesInit = useCallback(async (engine) => {
+    // Carga el paquete 'slim' de partículas, que es ligero y eficiente
+    await loadSlim(engine);
   }, []);
 
-  return <div id="tsparticles" className="fixed top-0 left-0 w-full h-full -z-10" />;
+  const particlesOptions = {
+      background: {
+        color: { value: "#0d1a2c" }, // El mismo azul oscuro de tu marca
+      },
+      fpsLimit: 60,
+      particles: {
+        number: {
+          value: 150, // Menos partículas para un look más limpio
+          density: { enable: true, value_area: 800 },
+        },
+        color: { value: "#ffffff" },
+        shape: { type: "circle" },
+        opacity: {
+          value: 0.3,
+          random: true,
+          anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false },
+        },
+        size: {
+          value: { min: 0.5, max: 1.5 },
+          random: true,
+        },
+        move: {
+          enable: false, // Las partículas no se mueven, solo parpadean
+        },
+      },
+      interactivity: { events: { onhover: { enable: false } } },
+      detectRetina: true,
+  };
+
+  return <Particles id="tsparticles" init={particlesInit} options={particlesOptions} className="fixed top-0 left-0 w-full h-full -z-10" />;
 }
 
 
