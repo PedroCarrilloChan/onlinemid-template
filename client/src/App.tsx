@@ -74,8 +74,8 @@ export default function App() {
       try {
         // 1. Detectamos el dominio actual del visitante
         // PARA PRUEBAS: Forzamos el dominio a ser 'test.com' para que coincida con nuestra base de datos.
-        const domain = 'test.com'; 
-        // EN PRODUCCIÓN: Usaríamos la siguiente línea en su lugar.
+        //const domain = 'test.com'; 
+         EN PRODUCCIÓN: Usaríamos la siguiente línea en su lugar.
         // const domain = window.location.hostname;
 
         // 2. Llamamos a nuestra API pública para pedir el contenido
